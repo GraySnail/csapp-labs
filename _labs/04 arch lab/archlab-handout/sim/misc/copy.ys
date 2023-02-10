@@ -1,0 +1,50 @@
+# Execution Begin
+        .pos 0
+        irmovq stack, %rsp
+        call main
+        halt
+
+        .align 8
+# Source block
+src:
+        .quad 0x00a
+        .quad 0x0b0
+        .quad 0xc00
+# Destination block
+dest:
+        .quad 0x111
+        .quad 0x222
+        .quad 0x333
+
+# Main function
+main:
+        irmovq src, %rdi
+        irmovq dest, %rsi
+        irmovq $3, %rdx
+
+        call copy_block
+        ret
+
+# long copy_block(long *src, long* desc, long len )
+# rdi, rsi, rdx
+# copy array
+copy_block:
+        xorq %rax, %rax
+        andq %rdx, %rdx
+        jne test
+        ret
+loop:
+        mrmovq (%rdi), %rbx
+        rmmovq %rbx, (%rsi)
+        iaddq $8, %rdi
+        iaddq $8, %rsi
+        xorq %rbx, %rax
+        iaddq $-1, %rdx
+
+test:
+        jne loop
+        ret
+
+# Stack starts
+        .pos 0x300
+stack:
